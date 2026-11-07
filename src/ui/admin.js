@@ -38,14 +38,14 @@ function field(label, value, type = 'text') {
   return { node: el('label', { class: 'admin__field' }, el('span', { class: 'admin__label', text: label }), input), input };
 }
 
-function loginView(site, onDone) {
+function loginView(site) {
   const input = el('input', { class: 'admin__input', type: 'password', placeholder: '访问口令', autocomplete: 'off' });
   const note = el('div', { class: 'admin__note', text: '' });
   const submit = (event) => {
     event.preventDefault();
     if (input.value === (site.admin?.password || 'tiphereth')) {
       sessionStorage.setItem(SESSION_KEY, '1');
-      onDone();
+      window.location.reload();
     } else {
       note.textContent = 'ACCESS DENIED';
       input.value = '';
@@ -60,7 +60,7 @@ function loginView(site, onDone) {
           input,
           el('button', { class: 'btn btn--play', type: 'submit', text: 'UNLOCK' }),
           note,
-          el('p', { class: 'admin__hint', text: '口令只做前台门禁，不是真正的安全边界；要真防护得换成 Cloudflare Access。' }),
+          el('p', { class: 'admin__hint', text: '口令只做前台门禁，不是安全边界；要真防护得换 Cloudflare Access。' }),
         ),
       ),
     ),
@@ -68,7 +68,7 @@ function loginView(site, onDone) {
   };
 }
 
-function editorView({ content, rerender }) {
+function editorView({ content }) {
   const site = structuredClone(content.site);
   const profile = structuredClone(content.profile);
   const days = { ...(content.activity.days || {}) };
@@ -78,7 +78,7 @@ function editorView({ content, rerender }) {
     handle: field('handle', site.handle),
     role: field('role', site.role),
     location: field('location', site.location),
-    station: field('station', site.station),
+    station: field('站点标识', site.station),
     intro: field('简介', site.intro),
     city: field('天气城市', site.weather?.city),
     lat: field('纬度', site.weather?.lat),
@@ -95,27 +95,20 @@ function editorView({ content, rerender }) {
     skills: field('技能（逗号分隔）', (profile.skills || []).join(', ')),
     password: field('修改口令（留空不变）', '', 'password'),
   };
-  const links = el('textarea', { class: 'admin__textarea', rows: '4', value: (site.links || []).map((link) => `${link.label} | ${link.href}`).join('\n') });
+  const links = el('textarea', { class: 'admin__textarea', rows: '4' });
+  links.value = (site.links || []).map((link) => `${link.label} | ${link.href}`).join('\n');
 
-  const heat = heatmapGrid(days, {
-    onClick: (key) => {
-      days[key] = ((days[key] || 0) + 1) % 5;
-      if (!days[key]) delete days[key];
-      heat.replaceWith(heatmapGrid(days, { onClick: arguments.callee }));
-    },
-  });
-  // 上面的自引用不靠谱，重挂一个闭包
-  const mountHeat = () => {
-    const next = heatmapGrid(days, {
+  const heatSlot = el('div', { class: 'admin__heat' });
+  const renderHeat = () => {
+    heatSlot.replaceChildren(heatmapGrid(days, {
       onClick: (key) => {
         days[key] = ((days[key] || 0) + 1) % 5;
         if (!days[key]) delete days[key];
-        next.replaceWith(mountHeat());
+        renderHeat();
       },
-    });
-    return next;
+    }));
   };
-  heat.replaceWith(mountHeat());
+  renderHeat();
 
   const status = el('div', { class: 'admin__note', text: '' });
   const pat = el('input', { class: 'admin__input', type: 'password', value: localStorage.getItem(PAT_KEY) || '', placeholder: 'GitHub token（可选，用于提交）' });
@@ -144,7 +137,7 @@ function editorView({ content, rerender }) {
       fileNo: f.fileNo.input.value.trim(),
       photoLabel: f.photoLabel.input.value.trim(),
       bio: f.bio.input.value,
-      skills: f.skills.input.value.split(',').map((s) => s.trim()).filter(Boolean),
+      skills: f.skills.input.value.split(',').map((item) => item.trim()).filter(Boolean),
     };
     return { site: nextSite, profile: nextProfile, activity: { generatedAt: new Date().toISOString().slice(0, 10), days } };
   }
@@ -182,7 +175,7 @@ function editorView({ content, rerender }) {
           el('div', { class: 'link-row' },
             el('button', { class: 'btn btn--play', type: 'button', text: '保存到本机', onClick: save }),
             el('button', { class: 'btn', type: 'button', text: '提交到仓库', onClick: push }),
-            el('button', { class: 'btn', type: 'button', text: '退出', onClick: () => { sessionStorage.removeItem(SESSION_KEY); rerender(); } }),
+            el('button', { class: 'btn', type: 'button', text: '退出', onClick: () => { sessionStorage.removeItem(SESSION_KEY); window.location.reload(); } }),
             el('button', { class: 'btn', type: 'button', text: '丢弃本机修改', onClick: () => { clearOverride(); window.location.reload(); } }),
           ),
         ),
@@ -190,8 +183,8 @@ function editorView({ content, rerender }) {
           box('SITE', f.name.node, f.handle.node, f.role.node, f.location.node, f.station.node, f.intro.node, f.city.node, f.lat.node, f.lon.node, f.password.node),
           box('OPERATOR', f.operator.node, f.alias.node, f.title.node, f.clearance.node, f.pstation.node, f.status.node, f.fileNo.node, f.photoLabel.node, f.bio.node, f.skills.node),
           box('LINKS', links),
-          box('ACTIVITY // 点击格子 +1', mountHeat()),
-          box('PUBLISH', pat, el('p', { class: 'admin__hint', text: 'token 只存在本机。没有 token 时保存只在当前浏览器生效。' }), status),
+          box('ACTIVITY // 点击格子 +1', heatSlot),
+          box('PUBLISH', pat, el('p', { class: 'admin__hint', text: 'token 只存本机。没 token 时保存只在当前浏览器生效。' }), status),
         ),
       ),
     ),
@@ -200,16 +193,5 @@ function editorView({ content, rerender }) {
 }
 
 export function pageAdmin({ content }) {
-  let view = null;
-  const rerender = () => {
-    view = isAuthed() ? editorView({ content, rerender }) : loginView(content.site, rerender);
-    const anchor = document.querySelector('.admin-slot');
-    if (anchor) {
-      anchor.replaceWith(view.el);
-      view.el.classList.add('admin-slot');
-    }
-  };
-  const initial = isAuthed() ? editorView({ content, rerender }) : loginView(content.site, rerender);
-  initial.el.classList.add('admin-slot');
-  return initial;
+  return isAuthed() ? editorView({ content }) : loginView(content.site);
 }
