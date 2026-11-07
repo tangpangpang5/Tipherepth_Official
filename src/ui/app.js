@@ -1,103 +1,112 @@
 import { el } from './dom.js';
 import { createPlayerBar } from './player-bar.js';
-import { renderLibrary, renderTrack, renderWall } from './views.js';
-
-const ROUTE_RE = /^#\/?([a-z-]+)?(?:\/(.+))?$/;
+import { loadContent } from '../content.js';
+import { pageAbout, pageBlog, pageHome, pageMusic, pagePost, pageWorks } from './pages.js';
 
 function parseHash() {
-  const raw = window.location.hash || '#/';
-  const match = raw.match(ROUTE_RE);
-  const name = (match && match[1]) || 'wall';
-  const param = match && match[2] ? decodeURIComponent(match[2]) : null;
-  if (name === 'library') return { route: 'library', trackId: null };
-  if (name === 'track' && param) return { route: 'track', trackId: param };
-  return { route: 'wall', trackId: null };
+  const raw = (window.location.hash || '#/').replace(/^#\/?/, '');
+  const [head, ...rest] = raw.split('/').filter(Boolean);
+  if (!head) return { name: 'home' };
+  if (head === 'blog') return rest[0] ? { name: 'post', slug: decodeURIComponent(rest[0]) } : { name: 'blog' };
+  if (head === 'works') return { name: 'works' };
+  if (head === 'about') return { name: 'about' };
+  if (head === 'music') {
+    if (rest[0] === 'library') return { name: 'music', mode: 'index' };
+    if (rest[0] === 'track' && rest[1]) return { name: 'music', mode: 'index', trackId: decodeURIComponent(rest[1]) };
+    return { name: 'music', mode: 'wall' };
+  }
+  return { name: 'home' };
 }
 
-export function createApp({ dataset, player }) {
+export function createApp({ dataset, content }) {
   const root = el('div', { class: 'app' });
-  const main = el('div', { class: 'main' });
+  const main = el('main', { class: 'main' });
   const navLinks = new Map();
   let viewHandle = null;
   let playerBar = null;
   let clockTimer = 0;
 
-  function navigate(path) {
+  const go = (path) => {
     const next = '#/' + String(path || '').replace(/^#?\/?/, '');
     if (window.location.hash === next) render();
     else window.location.hash = next;
-  }
+  };
 
-  function openTrack(id) {
-    if (!id) return;
-    navigate(`track/${encodeURIComponent(id)}`);
-  }
-
-  function openWall() {
-    navigate('wall');
-  }
-
-  function setCurrent(route) {
-    for (const [key, link] of navLinks) {
-      if (key === route) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
-    }
-  }
+  const NAV = [
+    ['home', 'HOME', ''] ,
+    ['blog', 'LOG', 'blog'],
+    ['works', 'WORKS', 'works'],
+    ['about', 'ABOUT', 'about']
+  ];
 
   function buildTopbar() {
-    const nav = el(
-      'nav',
-      { class: 'topbar__nav', 'aria-label': '视图切换' },
-      el('a', { class: 'navlink', href: '#/wall', text: 'WALL' }),
-      el('a', { class: 'navlink', href: '#/library', text: 'LIBRARY' })
-    );
-    navLinks.set('wall', nav.children[0]);
-    navLinks.set('library', nav.children[1]);
+    const links = NAV.map(([key, label, path]) => {
+      const link = el('a', { class: 'navlink', href: `#/${path}`, text: label });
+      navLinks.set(key, link);
+      return link;
+    });
 
-    const badge = dataset.demo
-      ? el('span', { class: 'badge badge--demo', text: 'DEMO DATA' })
-      : el('span', { class: 'badge', text: `${dataset.tracks.length} TRACKS` });
+    const music = el('a', { class: 'navlink navlink--music', href: '#/music' });
+    music.append(el('span', { class: 'navlink__dot' }), document.createTextNode('MUSIC'));
+    navLinks.set('music', music);
+    links.push(music);
 
-    const clock = el('span', { class: 'mono', text: '' });
+    const clock = el('span', { class: 'topbar__clock', text: '' });
     const tick = () => {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+      clock.textContent = new Date().toLocaleTimeString('zh-CN', { hour12: false });
     };
     tick();
     clockTimer = window.setInterval(tick, 1000);
+
+    const demo = dataset.demo ? el('span', { class: 'badge badge--demo', text: 'DEMO' }) : null;
 
     return el(
       'header',
       { class: 'topbar' },
       el(
         'a',
-        { class: 'brand', href: '#/wall' },
+        { class: 'brand', href: '#/' },
         el('span', { class: 'brand__mark' }),
-        el('span', { text: 'TIPHERETH // ARCHIVE' }),
-        el('span', { class: 'status-light', dataset: { state: dataset.demo ? 'demo' : 'ok' } })
+        el('span', { class: 'brand__name', text: content.site.name }),
+        el('span', { class: 'brand__sub', text: 'ARCHIVE' })
       ),
-      el('div', { class: 'topbar__meta' }, badge, nav, clock)
+      el('nav', { class: 'nav', 'aria-label': '主导航' }, ...links),
+      el('div', { class: 'topbar__meta' }, demo, clock)
     );
   }
 
+  function setCurrent(name) {
+    for (const [key, link] of navLinks) {
+      if (key === name) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    }
+  }
+
   function render() {
-    const { route, trackId } = parseHash();
-    if (viewHandle && typeof viewHandle.destroy === 'function') viewHandle.destroy();
+    const route = parseHash();
+    if (viewHandle && viewHandle.destroy) viewHandle.destroy();
     viewHandle = null;
     main.replaceChildren();
 
-    const ctx = { dataset, player, navigate, openTrack, openWall };
-
-    if (route === 'library') {
-      viewHandle = renderLibrary(ctx);
-    } else if (route === 'track') {
-      viewHandle = renderTrack({ ...ctx, trackId });
-    } else {
-      viewHandle = renderWall(ctx);
+    if (route.name === 'home') viewHandle = pageHome({ content, navigate: go });
+    else if (route.name === 'blog') viewHandle = pageBlog({ content, navigate: go });
+    else if (route.name === 'post') viewHandle = pagePost({ content, slug: route.slug, navigate: go });
+    else if (route.name === 'works') viewHandle = pageWorks({ content, navigate: go });
+    else if (route.name === 'about') viewHandle = pageAbout({ content, navigate: go });
+    else if (route.name === 'music') {
+      const narrow = window.matchMedia('(max-width: 860px)').matches;
+      viewHandle = pageMusic({
+        dataset,
+        player,
+        navigate: go,
+        mode: narrow && route.mode === 'wall' ? 'index' : route.mode,
+        trackId: route.trackId
+      });
     }
 
     main.append(viewHandle.el);
-    setCurrent(route);
+    setCurrent(route.name === 'music' ? 'music' : route.name);
+    main.scrollTop = 0;
   }
 
   function mount(node) {
@@ -109,23 +118,14 @@ export function createApp({ dataset, player }) {
     window.addEventListener('hashchange', render);
     render();
 
-    // 全局快捷键：空格播放/暂停，←/→ 切歌，Esc 回墙
     window.addEventListener('keydown', (event) => {
       const tag = (event.target && event.target.tagName) || '';
       if (tag === 'INPUT' || tag === 'TEXTAREA' || event.target?.isContentEditable) return;
       if (event.code === 'Space') {
+        const isMusic = (window.location.hash || '').includes('music');
+        if (!isMusic) return;
         event.preventDefault();
         player.toggle();
-      } else if (event.code === 'ArrowRight' && event.shiftKey) {
-        player.next({});
-      } else if (event.code === 'ArrowLeft' && event.shiftKey) {
-        player.prev();
-      } else if (event.code === 'KeyL') {
-        navigate('library');
-      } else if (event.code === 'KeyW') {
-        navigate('wall');
-      } else if (event.code === 'Escape') {
-        navigate('wall');
       }
     });
 
@@ -139,6 +139,8 @@ export function createApp({ dataset, player }) {
     if (playerBar) playerBar.destroy();
   }
 
-  const app = { mount, navigate, openTrack, destroy };
+  const app = { mount, navigate: go, destroy };
   return app;
 }
+
+void pageBlog;
