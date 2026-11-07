@@ -1,5 +1,5 @@
 import { el } from './dom.js';
-import { heatmapGrid, isoDate } from './heatmap.js';
+import { heatmapGrid } from './heatmap.js';
 
 const WEATHER = {
   0: '晴', 1: '多云', 2: '多云', 3: '阴', 45: '雾', 48: '雾',
@@ -17,25 +17,27 @@ function card(idx, title, ...children) {
   );
 }
 
-function fileCard(site, profile) {
+function fileCard(site, profile, note) {
   const fields = el('dl', { class: 'filecard__fields' });
   for (const field of profile.fields || []) {
     fields.append(el('div', { class: 'filecard__field' }, el('dt', { text: field.k }), el('dd', { text: field.v })));
   }
+  const info = el('div', { class: 'filecard__info' },
+    el('div', { class: 'filecard__chips' },
+      el('span', { class: 'chip', text: profile.title }),
+      el('span', { class: 'chip chip--ghost', text: profile.status }),
+    ),
+    el('div', { class: 'filecard__band' }, el('strong', { text: profile.operator })),
+    fields,
+  );
+  if (note) info.append(el('p', { class: 'filecard__note', text: note }));
   return el(
     'article',
     { class: 'filecard' },
     el('div', { class: 'filecard__head' }, el('span', { text: 'PERSONAL FILE' }), el('span', { class: 'filecard__rule' })),
     el('div', { class: 'filecard__body' },
       el('div', { class: 'filecard__photo' }, el('div', { class: 'filecard__figure' }), el('span', { class: 'filecard__tag', text: profile.photoLabel })),
-      el('div', { class: 'filecard__info' },
-        el('div', { class: 'filecard__chips' },
-          el('span', { class: 'chip', text: profile.title }),
-          el('span', { class: 'chip chip--ghost', text: profile.status }),
-        ),
-        el('div', { class: 'filecard__band' }, el('strong', { text: profile.operator })),
-        fields,
-      ),
+      info,
     ),
     el('div', { class: 'filecard__foot' },
       el('span', { text: profile.fileNo }),
@@ -46,7 +48,6 @@ function fileCard(site, profile) {
 }
 
 function clockNode(site) {
-
   const time = el('div', { class: 'clock__time', text: '--:--:--' });
   const date = el('div', { class: 'clock__date', text: '' });
   const tick = () => {
@@ -104,40 +105,42 @@ export function pageHome({ content }) {
   const total = Object.values(days).reduce((sum, n) => sum + n, 0);
   const active = Object.keys(days).length;
 
-  const elm = el(
-    'section',
-    { class: 'page' },
-    el('div', { class: 'container' },
-      el('div', { class: 'console' },
-        el('div', { class: 'console__col' },
-          clock.el,
-          card('01', 'WEATHER', weather),
-          card('02', 'ACTIVITY // 182D',
-            el('div', { class: 'activity__meta' }, el('span', { text: `${total} 次记录` }), el('span', { text: `${active} 天有活动` })),
-            heatmapGrid(days),
-          ),
-        ),
-        el('div', { class: 'console__col' },
-          el('div', { class: 'console__row' }, fileCard(site, profile)),
-          card('03', 'OPERATOR',
-            el('div', { class: 'opstatus' },
-              el('span', { class: 'opstatus__dot' }),
-              el('span', { text: profile.status }),
-              el('span', { class: 'opstatus__meta', text: profile.station }),
+  return {
+    el: el(
+      'section',
+      { class: 'page' },
+      el('div', { class: 'container' },
+        el('div', { class: 'console' },
+          el('div', { class: 'console__col' },
+            clock.el,
+            card('01', 'WEATHER', weather),
+            card('02', 'ACTIVITY // 182D',
+              el('div', { class: 'activity__meta' }, el('span', { text: `${total} 次记录` }), el('span', { text: `${active} 天有活动` })),
+              heatmapGrid(days),
             ),
-            el('p', { class: 'datacard__text', text: profile.bio }),
-            linksRow(site.links),
           ),
-          el('a', { class: 'music-cta', href: '#/music' },
-            el('span', { class: 'music-cta__label', text: 'CASSETTE WALL' }),
-            el('span', { class: 'music-cta__text', text: '推门进去，墙上是我这些年存下来的声音。' }),
-            el('span', { class: 'music-cta__arrow', text: '→' }),
+          el('div', { class: 'console__col' },
+            el('div', { class: 'console__row' }, fileCard(site, profile)),
+            card('03', 'OPERATOR',
+              el('div', { class: 'opstatus' },
+                el('span', { class: 'opstatus__dot' }),
+                el('span', { text: profile.status }),
+                el('span', { class: 'opstatus__meta', text: profile.station }),
+              ),
+              el('p', { class: 'datacard__text', text: profile.bio }),
+              linksRow(site.links),
+            ),
+            el('a', { class: 'music-cta', href: '#/music' },
+              el('span', { class: 'music-cta__label', text: 'CASSETTE WALL' }),
+              el('span', { class: 'music-cta__text', text: '推门进去，墙上是我这些年存下来的声音。' }),
+              el('span', { class: 'music-cta__arrow', text: '→' }),
+            ),
           ),
         ),
       ),
     ),
-  );
-  return { el: elm, destroy: () => clock.destroy() };
+    destroy: () => clock.destroy(),
+  };
 }
 
 export function pageProfile({ content }) {
@@ -148,7 +151,7 @@ export function pageProfile({ content }) {
     el: el('section', { class: 'page' },
       el('div', { class: 'container' },
         el('div', { class: 'profile' },
-          fileCard(site, profile),
+          fileCard(site, profile, site.intro),
           card('04', 'BIOGRAPHY', el('p', { class: 'datacard__text', text: profile.bio })),
           card('05', 'SKILLS', skills),
           card('06', 'TIMELINE', timeline),
@@ -160,4 +163,4 @@ export function pageProfile({ content }) {
   };
 }
 
-export { card, linksRow, mountWeather, isoDate };
+export { card, linksRow, mountWeather };
