@@ -32,6 +32,7 @@ export function createPlayer() {
   let currentIndex = -1;
   let mode = 'sequential';
   let fadeHandle = 0;
+  let userVolume = 0.8;
   let pendingAutoplay = false;
   let sourceCandidates = [];
   let sourceCursor = 0;
@@ -58,7 +59,7 @@ export function createPlayer() {
     writeStored({
       id: currentTrack()?.id || null,
       mode,
-      volume: audio.volume,
+      volume: userVolume,
       position: state.currentTime || 0
     });
   }
@@ -67,8 +68,12 @@ export function createPlayer() {
     return tracks[currentIndex] || null;
   }
 
-  function fadeTo(target, ms = 180) {
+  function cancelFade() {
     cancelAnimationFrame(fadeHandle);
+  }
+
+  function fadeTo(target, ms = 180) {
+    cancelFade();
     const from = audio.volume;
     const started = performance.now();
     const step = () => {
@@ -114,6 +119,34 @@ export function createPlayer() {
     }
   }
 
+  function prepare(index, autoplay) {
+    currentIndex = index;
+    const track = currentTrack();
+    state.currentTime = 0;
+    state.duration = track ? track.durationMs / 1000 : 0;
+    state.error = null;
+    sourceCandidates = audioCandidates(track);
+    sourceCursor = 0;
+    pendingAutoplay = autoplay;
+
+    emit('change', { track, index });
+    persist();
+
+    if (!sourceCandidates.length) {
+      state.available = false;
+      state.playing = false;
+      state.error = 'NO AUDIO';
+      emit('state');
+      return;
+    }
+
+    if (autoplay) {
+      audio.volume = 0;
+      fadeTo(userVolume, 220);
+    }
+    loadSource(sourceCandidates[0]);
+  }
+
   audio.addEventListener('timeupdate', () => {
     state.currentTime = audio.currentTime || 0;
     emit('time', { currentTime: state.currentTime, duration: state.duration });
@@ -154,31 +187,7 @@ export function createPlayer() {
       attemptPlay();
       return;
     }
-
-    currentIndex = nextIndex;
-    const track = currentTrack();
-    state.currentTime = 0;
-    state.duration = track ? track.durationMs / 1000 : 0;
-    sourceCandidates = audioCandidates(track);
-    sourceCursor = 0;
-    pendingAutoplay = options.autoplay !== false;
-
-    emit('change', { track, index: currentIndex });
-    persist();
-
-    if (!sourceCandidates.length) {
-      state.available = false;
-      state.playing = false;
-      state.error = 'NO AUDIO';
-      emit('state');
-      return;
-    }
-
-    fadeTo(0, 120);
-    window.setTimeout(() => {
-      loadSource(sourceCandidates[0]);
-      fadeTo(audio.volume || 0.8, 220);
-    }, 130);
+    prepare(nextIndex, options.autoplay !== false);
   }
 
   function next(options = {}) {
@@ -192,7 +201,7 @@ export function createPlayer() {
       return;
     }
     const index = currentIndex + 1;
-    if (options.automatic && mode === 'sequential' && index >= tracks.length) {
+    if (options.automatic && index >= tracks.length) {
       playIndex(0, { autoplay: false });
       return;
     }
@@ -222,18 +231,39 @@ export function createPlayer() {
     getTracks: () => tracks,
     getCurrentTrack: currentTrack,
     getCurrentIndex: () => currentIndex,
-    getState: () => ({ ...state, mode, volume: audio.volume }),
+    getState: () => ({ ...state, mode, volume: userVolume }),
     setTracks(list) {
       tracks = list || [];
       const stored = readStored();
       if (stored.mode) mode = stored.mode;
-      if (typeof stored.volume === 'number') audio.volume = Math.min(1, Math.max(0, stored.volume));
+      if (typeof stored.volume === 'number') {
+        userVolume = Math.min(1, Math.max(0, stored.volume));
+        audio.volume = userVolume;
+      }
       const index = tracks.findIndex((t) => t.id === stored.id);
       if (index >= 0) {
         currentIndex = index;
-        emit('change', { track: currentTrack(), index });
-        if (stored.position > 0) {
-          state.currentTime = stored.position;
+        const track = currentTrack();
+        state.duration = track.durationMs / 1000;
+        state.error = null;
+        sourceCandidates = audioCandidates(track);
+        sourceCursor = 0;
+        emit('change', { track, index });
+        if (sourceCandidates.length) {
+          audio.src = sourceCandidates[0];
+          audio.load();
+          const restore = Number(stored.position) || 0;
+          if (restore > 0) {
+            audio.addEventListener(
+              'loadedmetadata',
+              () => {
+                audio.currentTime = Math.min(restore, audio.duration || restore);
+              },
+              { once: true }
+            );
+          }
+        } else {
+          state.error = 'NO AUDIO';
         }
       }
       emit('state');
@@ -260,11 +290,12 @@ export function createPlayer() {
     },
     getMode: () => mode,
     setVolume(value) {
-      audio.volume = Math.min(1, Math.max(0, value));
+      userVolume = Math.min(1, Math.max(0, value));
+      audio.volume = userVolume;
       persist();
       emit('state');
     },
-    getVolume: () => audio.volume,
+    getVolume: () => userVolume,
     flushPosition() {
       persist();
     }

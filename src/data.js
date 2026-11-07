@@ -39,16 +39,14 @@ function normalizeTrack(track, index) {
     lossless: Boolean(track.lossless),
     coverBase: normalizeCover(track.cover),
     accent: track.accent || null,
+    // true = 按 id 推导 audio/<id>.opus|mp3；false = 无音频；字符串 = 显式 URL
     audio: track.audio || (track.hasAudio === false ? null : true),
     lyrics: track.lyrics || null,
     metaSource: track.metaSource || 'tags'
   };
 }
 
-/**
- * 数据加载：优先真实曲库，失败时退回演示数据。
- * 返回 { tracks, demo, generatedAt, rootName }。
- */
+/** 数据加载：优先真实曲库，缺失时退回演示数据（不阻断首屏）。 */
 export async function loadTracks() {
   let dataset = null;
   let demo = false;
@@ -57,7 +55,6 @@ export async function loadTracks() {
     const real = await fetchJson(REAL_URL);
     if (Array.isArray(real?.tracks) && real.tracks.length > 0) dataset = real;
   } catch (error) {
-    // 没有曲库是常态：安静回退，不打扰用户
     console.info('[data] tracks.json 不可用，尝试演示数据：', error.message);
   }
 
@@ -84,15 +81,17 @@ export async function loadTracks() {
   };
 }
 
+/** 音频候选：opus 优先，Safari 等不支持时回退 mp3。 */
 export function audioCandidates(track) {
   if (!track || track.audio === null || track.audio === false) return [];
   if (typeof track.audio === 'string') return [track.audio];
-  const base = `public/audio/${track.id}`;
-  const canOpus = document.createElement('audio').canPlayType('audio/ogg; codecs=opus');
+  const probe = document.createElement('audio');
+  const canOpus = Boolean(probe.canPlayType('audio/ogg; codecs="opus"'));
+  const base = `audio/${track.id}`;
   return canOpus ? [`${base}.opus`, `${base}.mp3`] : [`${base}.mp3`, `${base}.opus`];
 }
 
 export function lyricsCandidates(track) {
   if (!track) return [];
-  return [`public/lyrics/${track.id}.lrc`];
+  return [`lyrics/${track.id}.lrc`];
 }

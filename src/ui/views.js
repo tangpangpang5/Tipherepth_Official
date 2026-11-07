@@ -12,13 +12,12 @@ export function renderWall({ dataset, player, openTrack }) {
   const indexLabel = el('div', { class: 'hud__index', text: 'ARCHIVE // 00' });
   const title = el('h2', { class: 'hud__title', text: 'NO TRACK' });
   const artist = el('div', { class: 'hud__artist', text: '—' });
-  const barFill = el('span');
 
   const hud = el(
     'div',
     { class: 'hud', hidden: 'hidden' },
-    el('div', { class: 'hud__row' }, indexLabel, el('div', { class: 'hud__index', text: 'WHEEL / DRAG / CLICK' })),
-    el('div', { class: 'hud__row' }, el('div', {}, title, artist, el('div', { class: 'hud__bar' }, barFill)))
+    el('div', { class: 'hud__row' }, indexLabel, el('div', { class: 'hud__index', text: 'DRAG / WHEEL / CLICK' })),
+    el('div', { class: 'hud__row' }, el('div', {}, title, artist))
   );
 
   const wall = el('div', { class: 'wall' }, canvasHost, hud);
@@ -35,18 +34,15 @@ export function renderWall({ dataset, player, openTrack }) {
   });
 
   function showFallback(message) {
-    canvasHost.replaceChildren(el('div', { class: 'wall__fallback' }, el('div', { text: message }), el('div', { text: 'PRESS L FOR LIBRARY' })));
+    canvasHost.replaceChildren(
+      el('div', { class: 'wall__fallback' }, el('div', { text: message }), el('div', { text: 'PRESS L FOR LIBRARY' }))
+    );
     hud.removeAttribute('hidden');
   }
 
   if (!dataset.tracks.length) {
     showFallback('NO TRACKS // RUN npm run scan');
-    return {
-      el: root,
-      destroy() {
-        offChange();
-      }
-    };
+    return { el: root, destroy: () => offChange() };
   }
 
   import('./scene/wall.js')
@@ -55,6 +51,7 @@ export function renderWall({ dataset, player, openTrack }) {
       handle = mod.mountWall({
         container: canvasHost,
         tracks: dataset.tracks,
+        startIndex: Math.max(0, player.getCurrentIndex()),
         onSelect(index) {
           player.playIndex(index, { autoplay: true });
           const track = dataset.tracks[index];
@@ -92,12 +89,12 @@ export function renderLibrary({ dataset, player, openTrack }) {
 
   function paint() {
     const keyword = query.trim().toLowerCase();
-    const visible = dataset.tracks
-      .map((track) => ({ track, index: dataset.tracks.indexOf(track) }))
-      .filter(({ track }) => {
-        if (!keyword) return true;
-        return `${track.title} ${track.artist} ${track.album}`.toLowerCase().includes(keyword);
-      });
+    const entries = dataset.tracks.map((track, index) => ({ track, index }));
+    const visible = keyword
+      ? entries.filter(({ track }) =>
+          `${track.title} ${track.artist} ${track.album}`.toLowerCase().includes(keyword)
+        )
+      : entries;
 
     rows.replaceChildren(
       ...visible.map(({ track, index }) => {
@@ -111,7 +108,12 @@ export function renderLibrary({ dataset, player, openTrack }) {
           },
           el('span', { class: 'row__no', text: String(index + 1).padStart(3, '0') }),
           el('img', { class: 'row__cover', src: coverUrl(track, 96), alt: '', loading: 'lazy' }),
-          el('div', { class: 'row__main' }, el('div', { class: 'row__title', text: track.title }), el('div', { class: 'row__sub', text: `${track.artist} — ${track.album}` })),
+          el(
+            'div',
+            { class: 'row__main' },
+            el('div', { class: 'row__title', text: track.title }),
+            el('div', { class: 'row__sub', text: `${track.artist} — ${track.album}` })
+          ),
           el('span', { class: 'row__dur', text: fmtDuration(track.durationMs) }),
           el('span', { class: 'row__accent', style: { background: track.accent || 'var(--hazard)' } })
         );
@@ -158,7 +160,7 @@ export function renderLibrary({ dataset, player, openTrack }) {
       el('h1', { text: 'ARCHIVE INDEX' }),
       el('span', { class: 'view-head__count', text: `${dataset.tracks.length} TRACKS` })
     ),
-    el('div', { class: 'search' }, input),
+    el('div', { class: 'search' }, el('span', { class: 'hud__index', text: '>' }), input),
     rows
   );
 
@@ -167,13 +169,10 @@ export function renderLibrary({ dataset, player, openTrack }) {
 }
 
 /* ---------------- 曲目详情 ---------------- */
-export function renderTrack({ dataset, player, trackId, openTrack }) {
+export function renderTrack({ dataset, player, trackId, openTrack, navigate }) {
   const track = dataset.tracks.find((item) => item.id === trackId) || null;
   if (!track) {
-    return {
-      el: viewShell(el('div', { class: 'empty', text: 'TRACK NOT FOUND' })),
-      destroy() {}
-    };
+    return { el: viewShell(el('div', { class: 'empty', text: 'TRACK NOT FOUND' })), destroy() {} };
   }
 
   const lyricsBox = el('div', { class: 'lyrics' }, el('div', { class: 'lyrics__empty', text: 'NO LYRIC DATA' }));
@@ -207,23 +206,19 @@ export function renderTrack({ dataset, player, trackId, openTrack }) {
     text: player.getCurrentTrack()?.id === track.id && player.getState().playing ? '❚❚ PAUSE' : '▶ PLAY'
   });
   playButton.addEventListener('click', () => {
-    if (player.getCurrentTrack()?.id === track.id) player.toggle();
-    else {
-      const index = dataset.tracks.indexOf(track);
-      player.playIndex(index, { autoplay: true });
+    if (player.getCurrentTrack()?.id === track.id) {
+      player.toggle();
+      return;
     }
+    player.playIndex(dataset.tracks.indexOf(track), { autoplay: true });
   });
 
   const detailButton = el('button', {
     class: 'btn',
     type: 'button',
-    text: 'OPEN IN LIST',
-    onclick: () => {
-      const index = dataset.tracks.indexOf(track);
-      player.playIndex(index, { autoplay: true });
-    }
+    text: 'BACK TO INDEX',
+    onclick: () => navigate('library')
   });
-  detailButton.addEventListener('click', () => openTrack('library'));
 
   const kv = el(
     'dl',
@@ -231,12 +226,14 @@ export function renderTrack({ dataset, player, trackId, openTrack }) {
     el('dt', { text: 'ALBUM' }), el('dd', { text: track.album }),
     el('dt', { text: 'YEAR' }), el('dd', { text: track.year ? String(track.year) : '—' }),
     el('dt', { text: 'DURATION' }), el('dd', { text: fmtDuration(track.durationMs) }),
-    el('dt', { text: 'CODEC' }), el('dd', { text: track.codec || (track.lossless ? 'LOSSLESS' : 'LOSSLESS?') }),
-    el('dt', { text: 'SOURCE' }), el('dd', { text: track.metaSource === 'tags' ? 'TAGS' : 'FILENAME' })
+    el('dt', { text: 'CODEC' }), el('dd', { text: track.codec || (track.lossless ? 'LOSSLESS' : 'UNKNOWN') }),
+    el('dt', { text: 'META' }), el('dd', { text: track.metaSource === 'tags' ? 'TAGS' : 'FROM FILENAME' })
   );
 
   const root = viewShell(
-    el('div', { class: 'track' },
+    el(
+      'div',
+      { class: 'track' },
       el('img', { class: 'track__cover', src: coverUrl(track, 512), alt: `${track.title} 封面` }),
       el(
         'div',
