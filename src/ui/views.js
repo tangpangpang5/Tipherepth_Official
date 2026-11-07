@@ -45,7 +45,8 @@ export function renderWall({ dataset, player, openTrack }) {
     return { el: root, destroy: () => offChange() };
   }
 
-  import('./scene/wall.js')
+  // 注意：相对路径从 src/ui/ 出发，所以是 ../scene/wall.js
+  import('../scene/wall.js')
     .then((mod) => {
       if (destroyed) return;
       handle = mod.mountWall({
@@ -91,9 +92,7 @@ export function renderLibrary({ dataset, player, openTrack }) {
     const keyword = query.trim().toLowerCase();
     const entries = dataset.tracks.map((track, index) => ({ track, index }));
     const visible = keyword
-      ? entries.filter(({ track }) =>
-          `${track.title} ${track.artist} ${track.album}`.toLowerCase().includes(keyword)
-        )
+      ? entries.filter(({ track }) => `${track.title} ${track.artist} ${track.album}`.toLowerCase().includes(keyword))
       : entries;
 
     rows.replaceChildren(
@@ -169,7 +168,7 @@ export function renderLibrary({ dataset, player, openTrack }) {
 }
 
 /* ---------------- 曲目详情 ---------------- */
-export function renderTrack({ dataset, player, trackId, openTrack, navigate }) {
+export function renderTrack({ dataset, player, trackId, navigate }) {
   const track = dataset.tracks.find((item) => item.id === trackId) || null;
   if (!track) {
     return { el: viewShell(el('div', { class: 'empty', text: 'TRACK NOT FOUND' })), destroy() {} };
@@ -213,12 +212,8 @@ export function renderTrack({ dataset, player, trackId, openTrack, navigate }) {
     player.playIndex(dataset.tracks.indexOf(track), { autoplay: true });
   });
 
-  const detailButton = el('button', {
-    class: 'btn',
-    type: 'button',
-    text: 'BACK TO INDEX',
-    onclick: () => navigate('library')
-  });
+  const backButton = el('button', { class: 'btn', type: 'button', text: 'BACK TO INDEX' });
+  backButton.addEventListener('click', () => navigate('library'));
 
   const kv = el(
     'dl',
@@ -240,7 +235,7 @@ export function renderTrack({ dataset, player, trackId, openTrack, navigate }) {
         { class: 'track__meta' },
         el('div', { class: 'track__artist', text: track.artist }),
         el('h1', { text: track.title }),
-        el('div', { style: { display: 'flex', gap: '8px', margin: '12px 0' } }, playButton, detailButton),
+        el('div', { style: { display: 'flex', gap: '8px', margin: '12px 0' } }, playButton, backButton),
         kv,
         lyricsBox
       )
