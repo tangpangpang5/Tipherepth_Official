@@ -1,6 +1,10 @@
 /* 逆卡巴拉生命树（Qliphoth）音乐页 */
 
-/* 头像与首页微调（本文件在 pages.css 之后加载�?*/
+/* 头像与首页微调（本文件在 pages.css 之后加载） */
+.filecard__photo--avatar {
+  aspect-ratio: 1 / 1;
+}
+
 .filecard__photo-img {
   display: block;
   width: 100%;
@@ -70,7 +74,7 @@
   letter-spacing: 0.16em;
 }
 
-/* ---------- �?---------- */
+/* ---------- 树 ---------- */
 .tree {
   position: relative;
   height: 1360px;
@@ -205,7 +209,7 @@
   color: rgba(216, 219, 214, 0.35);
 }
 
-/* ---------- 曲目�?---------- */
+/* ---------- 曲目行 ---------- */
 .track {
   display: grid;
   grid-template-columns: 22px 1fr auto;

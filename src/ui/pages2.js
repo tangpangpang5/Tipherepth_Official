@@ -30,7 +30,7 @@ function fileCard(profile) {
     { class: 'filecard' },
     el('div', { class: 'filecard__head' }, el('span', { text: 'PERSONAL FILE' }), el('span', { class: 'filecard__rule' })),
     el('div', { class: 'filecard__body' },
-      el('div', { class: 'filecard__photo' }, photo, el('span', { class: 'filecard__tag', text: profile.photoLabel })),
+      el('div', { class: profile.avatar ? 'filecard__photo filecard__photo--avatar' : 'filecard__photo' }, photo, el('span', { class: 'filecard__tag', text: profile.photoLabel })),
       el('div', { class: 'filecard__info' },
         el('div', { class: 'filecard__chips' },
           el('span', { class: 'chip', text: profile.title }),
