@@ -8,7 +8,7 @@ const DAYS = 91;
 
 /** 13 周热力图（GitHub 公开事件只回溯 90 天） */
 export function heatmapGrid(days, { counts } = {}) {
-  const grid = el('div', { class: 'heatmap', role: 'img', 'aria-label': '最近 182 天活动' });
+  const grid = el('div', { class: 'heatmap', role: 'img', 'aria-label': '最近 91 天活动' });
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const cells = [];
