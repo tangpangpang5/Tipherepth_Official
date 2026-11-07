@@ -1,5 +1,6 @@
 import './styles/tokens.css';
 import './styles/app.css';
+import './styles/theme-lc.css';
 import { loadTracks } from './data.js';
 import { loadContent } from './content.js';
 import { createPlayer } from './audio/player.js';

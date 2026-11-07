@@ -1,0 +1,287 @@
+/* LC 主题覆写：只改颜色、字体与形状，不改布局骨架
+   参照截图：主菜单（黑 + 奶黄斜切块 + 红字）、暂停菜单（薄荷绿）、设施 HUD（暖黑 + 琥珀框 + 红橙告警） */
+:root {
+  --void: #0b0b0d;
+  --panel: #121214;
+  --panel-raised: #1a1a1c;
+  --line: #2f2f2a;
+  --line-strong: #4a4a40;
+
+  --text: #e8e4cf;
+  --text-dim: #a8a598;
+  --text-faint: #6e6c62;
+
+  --paper: #f0e9a8;
+  --mint: #4ee0b4;
+  --deep-teal: #2c6d63;
+  --hazard: #f0e9a8;
+  --alert: #c21f31;
+  --orange: #e07a1f;
+  --accent: #4ee0b4;
+
+  --font-display: Impact, Haettenschweiler, "Arial Narrow Bold", "Noto Sans SC", sans-serif;
+  --font-sans: "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+}
+
+body {
+  background: var(--void);
+  color: var(--text);
+}
+
+/* 全站扫描线弱化：LC 是“干净的黑”，不是 CRT */
+body::before {
+  opacity: 0.18;
+}
+
+body::after {
+  background: radial-gradient(ellipse at 50% 20%, rgba(240, 233, 168, 0.04), transparent 60%);
+}
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  background: var(--void);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand__mark {
+  background: var(--alert);
+}
+
+.brand__name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+}
+
+.brand__sub {
+  color: var(--deep-teal);
+}
+
+.navlink {
+  color: var(--text-dim);
+  letter-spacing: 0.14em;
+}
+
+.navlink:hover {
+  color: var(--paper);
+}
+
+.navlink[aria-current="page"] {
+  color: var(--paper);
+  border-bottom-color: var(--mint);
+}
+
+.navlink__dot {
+  background: var(--mint);
+}
+
+/* ---------- 首屏：奶黄斜切块 ---------- */
+.hero {
+  background: var(--paper);
+  color: #0b0b0d;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 72px), 0 100%);
+  padding: 44px 40px calc(72px + 24px);
+  margin-bottom: 12px;
+  border-bottom: 0;
+}
+
+.hero__meta {
+  color: #6b6446;
+}
+
+.hero__name {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 9vw, 104px);
+  line-height: 0.94;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #0b0b0d;
+  margin: 8px 0 2px;
+}
+
+.hero__slogan {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.4vw, 28px);
+  letter-spacing: 0.06em;
+  color: var(--alert);
+  text-transform: uppercase;
+}
+
+.hero__intro {
+  color: #2e2c22;
+  max-width: 56ch;
+}
+
+.hero .btn {
+  border-color: #0b0b0d;
+  color: #0b0b0d;
+}
+
+.hero .btn:hover {
+  background: #0b0b0d;
+  color: var(--paper);
+  border-color: #0b0b0d;
+}
+
+/* ---------- 区块与列表 ---------- */
+.section__head h2::before {
+  content: "// ";
+  color: var(--mint);
+}
+
+.section__head {
+  border-bottom-color: var(--line);
+}
+
+.section__more:hover {
+  color: var(--paper);
+}
+
+.entry:hover {
+  background: #131316;
+  box-shadow: inset 2px 0 0 var(--mint);
+}
+
+.entry__title {
+  color: var(--paper);
+}
+
+.card {
+  border-color: var(--line);
+  background: var(--panel);
+}
+
+.card:hover {
+  border-color: var(--paper);
+  background: var(--panel-raised);
+}
+
+.card__title {
+  color: var(--paper);
+}
+
+.music-cta {
+  border-color: var(--mint);
+  background: #0d1a17;
+}
+
+.music-cta:hover {
+  border-color: var(--paper);
+}
+
+.music-cta__label {
+  color: var(--mint);
+}
+
+.page-head h1,
+.post__title,
+.track__meta h1 {
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+.prose {
+  color: #c9c6b6;
+}
+
+.prose h2,
+.prose h3 {
+  color: var(--paper);
+}
+
+.prose blockquote {
+  border-left-color: var(--mint);
+}
+
+.prose code {
+  color: var(--mint);
+}
+
+.work {
+  border-color: var(--line);
+}
+
+.work:hover {
+  border-color: var(--mint);
+}
+
+.work__title {
+  color: var(--paper);
+}
+
+/* ---------- 音乐 ---------- */
+.tabs {
+  background: var(--void);
+}
+
+.tab[aria-current="page"] {
+  color: var(--paper);
+  border-bottom-color: var(--mint);
+}
+
+.hud__index {
+  color: var(--mint);
+}
+
+.hud__title {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+.hud__artist {
+  color: var(--text-dim);
+}
+
+.row[aria-current="true"] {
+  box-shadow: inset 2px 0 0 var(--mint);
+}
+
+.lyrics__line[data-active="true"] {
+  color: var(--mint);
+}
+
+/* ---------- 播放条 ---------- */
+.player {
+  border-top: 1px solid var(--paper);
+  background: var(--void);
+}
+
+.btn--play {
+  background: var(--mint);
+  border-color: var(--mint);
+  color: #0b0b0d;
+}
+
+.btn--play:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: #0b0b0d;
+}
+
+.btn--play[data-state="playing"] {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: #0b0b0d;
+}
+
+.progress__fill {
+  background: var(--mint);
+}
+
+.badge--demo {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+@media (max-width: 860px) {
+  .hero {
+    padding: 28px 20px calc(56px + 16px);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 40px), 0 100%);
+  }
+}
