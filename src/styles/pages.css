@@ -257,6 +257,11 @@
   color: rgba(11, 11, 13, 0.6);
 }
 
+.datacard .chip {
+  border-color: rgba(240, 233, 168, 0.45);
+  color: #f0e9a8;
+}
+
 .filecard__band {
   background: #0b0b0d;
   color: #f0e9a8;
@@ -396,6 +401,15 @@
 
 .profile > .filecard {
   grid-column: 1 / -1;
+}
+
+.profile .filecard__body {
+  grid-template-columns: minmax(0, 240px) 1fr;
+}
+
+.profile .filecard__photo {
+  aspect-ratio: 3 / 4;
+  max-height: 300px;
 }
 
 .timeline {
@@ -548,6 +562,12 @@
   .filecard__body {
     grid-template-columns: minmax(96px, 34%) 1fr;
     gap: 10px;
+  }
+  .profile .filecard__body {
+    grid-template-columns: minmax(0, 110px) 1fr;
+  }
+  .profile .filecard__photo {
+    max-height: 180px;
   }
   .filecard__field {
     grid-template-columns: 76px 1fr;
