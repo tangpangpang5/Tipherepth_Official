@@ -1,5 +1,5 @@
 import { el } from './dom.js';
-import { heatmapGrid } from './heatmap.js';
+import { heatmapGrid, fetchGitHubActivity } from './heatmap.js';
 
 const WEATHER = {
   0: '晴', 1: '多云', 2: '多云', 3: '阴', 45: '雾', 48: '雾',
@@ -17,27 +17,28 @@ function card(idx, title, ...children) {
   );
 }
 
-function fileCard(site, profile, note) {
+function fileCard(profile) {
   const fields = el('dl', { class: 'filecard__fields' });
   for (const field of profile.fields || []) {
     fields.append(el('div', { class: 'filecard__field' }, el('dt', { text: field.k }), el('dd', { text: field.v })));
   }
-  const info = el('div', { class: 'filecard__info' },
-    el('div', { class: 'filecard__chips' },
-      el('span', { class: 'chip', text: profile.title }),
-      el('span', { class: 'chip chip--ghost', text: profile.status }),
-    ),
-    el('div', { class: 'filecard__band' }, el('strong', { text: profile.operator })),
-    fields,
-  );
-  if (note) info.append(el('p', { class: 'filecard__note', text: note }));
+  const photo = profile.avatar
+    ? el('img', { class: 'filecard__photo-img', src: profile.avatar, alt: profile.operator || 'avatar', loading: 'lazy' })
+    : el('div', { class: 'filecard__figure' });
   return el(
     'article',
     { class: 'filecard' },
     el('div', { class: 'filecard__head' }, el('span', { text: 'PERSONAL FILE' }), el('span', { class: 'filecard__rule' })),
     el('div', { class: 'filecard__body' },
-      el('div', { class: 'filecard__photo' }, el('div', { class: 'filecard__figure' }), el('span', { class: 'filecard__tag', text: profile.photoLabel })),
-      info,
+      el('div', { class: 'filecard__photo' }, photo, el('span', { class: 'filecard__tag', text: profile.photoLabel })),
+      el('div', { class: 'filecard__info' },
+        el('div', { class: 'filecard__chips' },
+          el('span', { class: 'chip', text: profile.title }),
+          el('span', { class: 'chip chip--ghost', text: profile.status }),
+        ),
+        el('div', { class: 'filecard__band' }, el('strong', { text: profile.operator })),
+        fields,
+      ),
     ),
     el('div', { class: 'filecard__foot' },
       el('span', { text: profile.fileNo }),
@@ -64,8 +65,8 @@ function clockNode(site) {
 }
 
 function mountWeather(node, cfg) {
-  const city = cfg?.city || '北京';
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${cfg?.lat ?? 39.9042}&longitude=${cfg?.lon ?? 116.4074}`
+  const city = cfg?.city || '重庆';
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${cfg?.lat ?? 29.5630}&longitude=${cfg?.lon ?? 106.5516}`
     + '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m'
     + '&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
   node.replaceChildren(el('div', { class: 'weather__row' }, el('span', { class: 'weather__city', text: city }), el('span', { class: 'weather__temp', text: '--' })));
@@ -96,14 +97,31 @@ function linksRow(links) {
   return el('div', { class: 'link-row' }, ...(links || []).map((link) => el('a', { class: 'btn', href: link.href, rel: 'noopener me', text: link.label })));
 }
 
+function activityCard(site, fallback) {
+  const meta = el('div', { class: 'activity__meta' }, el('span', { text: 'SYNC // GITHUB' }), el('span', { text: '182D' }));
+  const holder = el('div', { class: 'activity__grid' });
+  const render = (days) => {
+    holder.replaceChildren(heatmapGrid(days));
+    const total = Object.values(days).reduce((sum, n) => sum + n, 0);
+    const active = Object.keys(days).length;
+    meta.replaceChildren(el('span', { text: `${total} EVENTS` }), el('span', { text: `${active} ACTIVE DAYS` }));
+  };
+  render(fallback || {});
+  fetchGitHubActivity(site.handle)
+    .then((days) => {
+      if (Object.keys(days).length) render(days);
+    })
+    .catch(() => {
+      meta.replaceChildren(el('span', { text: 'SYNC FAILED' }), el('span', { text: 'CACHED' }));
+    });
+  return card('02', 'ACTIVITY // 90D', meta, holder);
+}
+
 export function pageHome({ content }) {
   const { site, profile, activity } = content;
   const clock = clockNode(site);
   const weather = el('div', { class: 'weather', text: 'LINKING…' });
   mountWeather(weather, site.weather);
-  const days = activity.days || {};
-  const total = Object.values(days).reduce((sum, n) => sum + n, 0);
-  const active = Object.keys(days).length;
 
   return {
     el: el(
@@ -114,25 +132,20 @@ export function pageHome({ content }) {
           el('div', { class: 'console__col' },
             clock.el,
             card('01', 'WEATHER', weather),
-            card('02', 'ACTIVITY // 182D',
-              el('div', { class: 'activity__meta' }, el('span', { text: `${total} 次记录` }), el('span', { text: `${active} 天有活动` })),
-              heatmapGrid(days),
-            ),
+            activityCard(site, activity.days),
           ),
           el('div', { class: 'console__col' },
-            el('div', { class: 'console__row' }, fileCard(site, profile)),
+            el('div', { class: 'console__row' }, fileCard(profile)),
             card('03', 'OPERATOR',
               el('div', { class: 'opstatus' },
                 el('span', { class: 'opstatus__dot' }),
                 el('span', { text: profile.status }),
                 el('span', { class: 'opstatus__meta', text: profile.station }),
               ),
-              el('p', { class: 'datacard__text', text: profile.bio }),
               linksRow(site.links),
             ),
             el('a', { class: 'music-cta', href: '#/music' },
               el('span', { class: 'music-cta__label', text: 'CASSETTE WALL' }),
-              el('span', { class: 'music-cta__text', text: '推门进去，墙上是我这些年存下来的声音。' }),
               el('span', { class: 'music-cta__arrow', text: '→' }),
             ),
           ),
@@ -146,16 +159,20 @@ export function pageHome({ content }) {
 export function pageProfile({ content }) {
   const { site, profile } = content;
   const skills = el('div', { class: 'link-row' }, ...(profile.skills || []).map((s) => el('span', { class: 'chip', text: s })));
-  const timeline = el('ol', { class: 'timeline' }, ...(profile.timeline || []).map((item) => el('li', { class: 'timeline__item' }, el('span', { class: 'timeline__year', text: item.year }), el('span', { class: 'timeline__text', text: item.text }))));
   return {
     el: el('section', { class: 'page' },
       el('div', { class: 'container' },
         el('div', { class: 'profile' },
-          fileCard(site, profile, site.intro),
-          card('04', 'BIOGRAPHY', el('p', { class: 'datacard__text', text: profile.bio })),
-          card('05', 'SKILLS', skills),
-          card('06', 'TIMELINE', timeline),
-          card('07', 'LINKS', linksRow(site.links)),
+          fileCard(profile),
+          card('03', 'SKILLS', skills),
+          card('04', 'LINKS', linksRow(site.links)),
+          card('05', 'PROFILE STATUS',
+            el('div', { class: 'opstatus' },
+              el('span', { class: 'opstatus__dot' }),
+              el('span', { text: profile.status }),
+              el('span', { class: 'opstatus__meta', text: profile.clearance }),
+            ),
+          ),
         ),
       ),
     ),

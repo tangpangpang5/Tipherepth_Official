@@ -4,9 +4,8 @@ const FALLBACK_SITE = {
   role: '高中生 // 前端 / 视觉',
   location: 'CN',
   station: 'SITE-13 // 第三收容室',
-  version: 'v0.3.0',
-  intro: '',
-  weather: { city: '北京', lat: 39.9042, lon: 116.4074 },
+  version: 'v0.4.0',
+  weather: { city: '重庆', lat: 29.563, lon: 106.5516 },
   repo: { owner: 'tangpangpang5', name: 'Tipherepth_Official', branch: 'main' },
   links: [],
   admin: { password: 'tiphereth' },
@@ -21,10 +20,9 @@ const FALLBACK_PROFILE = {
   status: 'STATION ONLINE',
   fileNo: 'FILE-01',
   photoLabel: 'PHOTO CLASSIFIED',
-  bio: '',
+  avatar: 'img/avatar.jpg',
   fields: [],
   skills: [],
-  timeline: [],
 };
 
 export const OVERRIDE_KEY = 'tiphereth:content';

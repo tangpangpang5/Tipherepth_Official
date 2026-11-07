@@ -1,6 +1,6 @@
 import { el } from './dom.js';
 import { createPlayerBar } from './player-bar.js';
-import { pageMusic } from './pages.js';
+import { pageMusic } from './tree.js';
 import { pageHome, pageProfile } from './pages2.js';
 import { pageAdmin } from './admin.js';
 
@@ -12,13 +12,13 @@ function parseHash() {
   if (head === 'admin') return { name: 'admin' };
   if (head === 'music') {
     if (rest[0] === 'library') return { name: 'music', mode: 'index' };
-    if (rest[0] === 'track' && rest[1]) return { name: 'music', mode: 'index', trackId: decodeURIComponent(rest[1]) };
-    return { name: 'music', mode: 'wall' };
+    if (rest[0] === 'track' && rest[1]) return { name: 'music', mode: 'tree', trackId: decodeURIComponent(rest[1]) };
+    return { name: 'music', mode: 'tree' };
   }
   return { name: 'home' };
 }
 
-export function createApp({ dataset, content }) {
+export function createApp({ dataset, content, player }) {
   const root = el('div', { class: 'app' });
   const main = el('main', { class: 'main' });
   const navLinks = new Map();
@@ -89,12 +89,11 @@ export function createApp({ dataset, content }) {
     else if (route.name === 'profile') viewHandle = pageProfile({ content, navigate: go });
     else if (route.name === 'admin') viewHandle = pageAdmin({ content, navigate: go });
     else if (route.name === 'music') {
-      const narrow = window.matchMedia('(max-width: 860px)').matches;
       viewHandle = pageMusic({
         dataset,
         player,
         navigate: go,
-        mode: narrow && route.mode === 'wall' ? 'index' : route.mode,
+        mode: route.mode,
         trackId: route.trackId,
       });
     }

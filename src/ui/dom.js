@@ -9,7 +9,10 @@ export function el(tag, props = {}, ...children) {
     else if (key.startsWith('on') && typeof value === 'function') {
       node.addEventListener(key.slice(2).toLowerCase(), value);
     } else if (key === 'style' && typeof value === 'object') {
-      Object.assign(node.style, value);
+      for (const [prop, val] of Object.entries(value)) {
+        if (prop.startsWith('--')) node.style.setProperty(prop, String(val));
+        else node.style[prop] = val;
+      }
     } else {
       node.setAttribute(key, value === true ? '' : String(value));
     }

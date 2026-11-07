@@ -1,0 +1,410 @@
+/* 逆卡巴拉生命树（Qliphoth）音乐页 */
+
+/* 头像与首页微调（本文件在 pages.css 之后加载�?*/
+.filecard__photo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.music-cta {
+  grid-template-rows: auto;
+}
+
+.music-cta__arrow {
+  grid-row: 1;
+}
+
+.page--music {
+  padding-bottom: 90px;
+}
+
+.container--wide {
+  max-width: 1240px;
+}
+
+.tree__bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0 14px;
+  border-bottom: 1px solid rgba(240, 233, 168, 0.18);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.tree__bar .tabs {
+  display: flex;
+  gap: 0;
+}
+
+.tree__bar .tab {
+  padding: 4px 14px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(216, 219, 214, 0.55);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.tree__bar .tab[aria-current='page'] {
+  color: #f0e9a8;
+  border-color: rgba(240, 233, 168, 0.4);
+  background: #101012;
+}
+
+.tree__status {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(216, 219, 214, 0.45);
+  margin-left: auto;
+}
+
+.tree__bar .btn {
+  width: auto;
+  padding: 5px 12px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+/* ---------- �?---------- */
+.tree {
+  position: relative;
+  height: 1360px;
+}
+
+.tree__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tree__lines path {
+  fill: none;
+  stroke: rgba(240, 233, 168, 0.28);
+  stroke-width: 1;
+}
+
+.tree__layer {
+  position: absolute;
+  left: 0;
+  top: var(--y);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: rgba(78, 224, 180, 0.6);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  border-left: 1px solid rgba(78, 224, 180, 0.25);
+  padding-left: 6px;
+  height: 120px;
+}
+
+/* ---------- 部门节点 ---------- */
+.node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, 0);
+  width: 250px;
+  background: #0d0e10;
+  border: 1px solid rgba(240, 233, 168, 0.3);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.node--focus {
+  border-color: #4ee0b4;
+}
+
+.node__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'roman code cn'
+    'roman en en';
+  gap: 0 8px;
+  align-items: baseline;
+  padding: 7px 10px 7px 12px;
+  border-left: 3px solid var(--accent);
+  border-bottom: 1px solid rgba(240, 233, 168, 0.18);
+  background: #0b0b0d;
+}
+
+.node__roman {
+  grid-area: roman;
+  align-self: center;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  color: #4ee0b4;
+}
+
+.node__code {
+  grid-area: code;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #f0e9a8;
+}
+
+.node__cn {
+  grid-area: cn;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0e9a8;
+}
+
+.node__en {
+  grid-area: en;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 219, 214, 0.4);
+}
+
+.node__tracks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.node__row {
+  border-top: 1px solid rgba(240, 233, 168, 0.08);
+}
+
+.node__row:first-child {
+  border-top: 0;
+}
+
+.node__row--empty {
+  padding: 8px 10px;
+}
+
+.node__empty {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgba(216, 219, 214, 0.3);
+}
+
+.node__foot {
+  padding: 4px 10px;
+  border-top: 1px solid rgba(240, 233, 168, 0.18);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(216, 219, 214, 0.35);
+}
+
+/* ---------- 曲目�?---------- */
+.track {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: rgba(240, 233, 168, 0.86);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.track:hover,
+.track:focus-visible {
+  background: #16171a;
+  outline: none;
+}
+
+.track__no {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  color: rgba(216, 219, 214, 0.35);
+}
+
+.track__title {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track__dur {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  color: rgba(216, 219, 214, 0.4);
+}
+
+.track[aria-current='true'] {
+  color: #4ee0b4;
+  box-shadow: inset 2px 0 0 #4ee0b4;
+}
+
+.track--playing .track__no,
+.track--playing .track__dur {
+  color: #4ee0b4;
+}
+
+/* ---------- INDEX 视图 ---------- */
+.deptlist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.deptlist__group {
+  border: 1px solid rgba(240, 233, 168, 0.22);
+  background: #0d0e10;
+  border-left: 3px solid var(--accent);
+  align-self: start;
+}
+
+.deptlist__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(240, 233, 168, 0.18);
+  background: #0b0b0d;
+}
+
+.deptlist__roman,
+.deptlist__count {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  color: #4ee0b4;
+}
+
+.deptlist__code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #f0e9a8;
+}
+
+.deptlist__cn {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0e9a8;
+}
+
+.deptlist__tracks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deptlist__group.node--focus {
+  border-color: #4ee0b4;
+}
+
+/* ---------- 歌词 ---------- */
+.lyrics {
+  position: fixed;
+  right: 0;
+  bottom: 74px;
+  width: min(380px, 92vw);
+  max-height: 52vh;
+  display: flex;
+  flex-direction: column;
+  background: #0b0b0d;
+  border: 1px solid rgba(240, 233, 168, 0.3);
+  border-right: 0;
+  z-index: 40;
+}
+
+.lyrics[hidden] {
+  display: none;
+}
+
+.lyrics__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(240, 233, 168, 0.2);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #f0e9a8;
+}
+
+.lyrics__close {
+  background: none;
+  border: 0;
+  color: #f0e9a8;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lyrics__body {
+  overflow-y: auto;
+  padding: 10px 14px 18px;
+}
+
+.lyrics__line {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(216, 219, 214, 0.5);
+  transition: color 120ms linear;
+}
+
+.lyrics__line[data-active] {
+  color: #4ee0b4;
+}
+
+.lyrics__empty {
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(216, 219, 214, 0.35);
+}
+
+/* ---------- 窄屏：树退化为纵向列表 ---------- */
+@media (max-width: 900px) {
+  .tree {
+    height: auto;
+    display: grid;
+    gap: 10px;
+  }
+
+  .tree__lines,
+  .tree__layer {
+    display: none;
+  }
+
+  .node {
+    position: static;
+    transform: none;
+    width: auto;
+  }
+
+  .node__tracks {
+    max-height: none;
+  }
+
+  .deptlist {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tree__status {
+    order: 3;
+    margin-left: 0;
+  }
+}

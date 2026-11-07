@@ -7,16 +7,12 @@
   "status": "STATION ONLINE",
   "fileNo": "FILE-01",
   "photoLabel": "PHOTO CLASSIFIED",
-  "bio": "写前端，也管一点视觉。喜欢硬边、编号和能查到出处的设计。这个站是我的个人档案库：身份、活动、天气和这些年存下来的声音。",
+  "avatar": "img/avatar.jpg",
   "fields": [
     { "k": "CODENAME", "v": "TIPHERETH" },
     { "k": "ROLE", "v": "前端 / 视觉设计" },
     { "k": "BASE", "v": "CN" },
     { "k": "UNIT", "v": "NOCTURNE" }
   ],
-  "skills": ["HTML / CSS", "JavaScript", "Three.js", "Cloudflare"],
-  "timeline": [
-    { "year": "2026", "text": "把博客改造成档案库，音乐模块先落地卡带墙。" },
-    { "year": "2025", "text": "开始系统性地整理自己的前端与视觉方法。" }
-  ]
+  "skills": ["HTML / CSS", "JavaScript", "Three.js", "Cloudflare"]
 }
