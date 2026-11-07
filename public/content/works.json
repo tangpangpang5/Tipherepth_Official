@@ -1,0 +1,8 @@
+[
+  { "slug": "tiphereth-official", "title": "Tipherepth Official", "year": 2026, "status": "进行中", "stack": ["Vite","Three.js","Cloudflare Pages"], "summary": "你现在看到的这个站：博客 + 3D 卡带墙音乐模块。", "href": "#/" },
+  { "slug": "music-wall", "title": "卡带墙播放器", "year": 2026, "status": "原型", "stack": ["Three.js","CanvasTexture"], "summary": "25 槽位滑动窗口的程序化 3D 卡带墙，零外部模型。", "href": "#/music" },
+  { "slug": "library-pipeline", "title": "本地曲库管线", "year": 2026, "status": "可用", "stack": ["Node","music-metadata","sharp","ffmpeg"], "summary": "扫描 → 取色 → 转码，一条命令把无损曲库变成可部署产物。", "href": "#/blog/library-300" },
+  { "slug": "design-system", "title": "设计 Token 与组件层", "year": 2026, "status": "进行中", "stack": ["CSS Variables"], "summary": "黑底、硬边、0 圆角、警示色只表达状态。", "href": "#/blog/design-tokens-as-contract" },
+  { "slug": "activity-heatmap", "title": "四通道活动面板", "year": 2025, "status": "计划", "stack": ["SVG","GitHub API"], "summary": "提交 / 写作 / 阅读 / 听歌四条热力图并置的监控面板。", "href": "#/works" },
+  { "slug": "archive-bookshelf", "title": "书架与书摘", "year": 2025, "status": "计划", "stack": ["JSON","CSS Grid"], "summary": "书脊按页数映射高度的书架视图。", "href": "#/works" }
+]

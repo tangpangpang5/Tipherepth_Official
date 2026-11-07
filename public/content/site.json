@@ -1,0 +1,13 @@
+{
+  "name": "TIPHERETH",
+  "handle": "tangpangpang5",
+  "role": "高中生 // 前端 / 视觉",
+  "slogan": "归档、记录，然后继续。",
+  "intro": "这是我的个人档案库：项目、笔记、书架和音乐。所有东西都按编号归档，不需要好看的封面，只需要能被找到。",
+  "location": "CN",
+  "links": [
+    { "label": "GitHub", "href": "https://github.com/tangpangpang5" },
+    { "label": "Email", "href": "mailto:tangpangpang5@gmail.com" },
+    { "label": "Bilibili", "href": "https://space.bilibili.com/" }
+  ]
+}
