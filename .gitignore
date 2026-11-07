@@ -1,16 +1,12 @@
 node_modules/
 dist/
 
-# 源音频与封面原始图不入库（体积）
+# 不入库：源音频、封面原图（体积大）
 public/audio/
 public/covers/src/
 
-# 以下生成物需要入库：它们是页面运行时真正读取的清单与缩略图
-# public/data/tracks.json
-# public/covers/gen/
-
-# 兼容旧路径
- data/tracks.json
+# 入库：public/data/tracks.json 与 public/covers/gen/
+# 它们是页面运行时真正读取的清单与缩略图
 
 # 系统与编辑器
 .DS_Store
