@@ -1,13 +1,16 @@
 # Tipherepth_Official
 
 月亮计划风格的音乐档案站：**3D 卡带墙 + 本地音频播放器**。
-设计依据见本地设计集 `blog-design/06-music-station.md`（3D 场景、音频管线、性能预算、降级矩阵）。
+设计依据：`blog-design/06-music-station.md`（3D 场景、音频管线、性能预算、降级矩阵）。
+
+**线上地址**：https://tipherepth-official.pages.dev
+（Cloudflare Pages，`main` 分支推送即自动构建部署）
 
 ## 当前状态：M1
 
 - 2D 视图（列表 / 曲目 / 歌词）与播放器可用
 - 3D 卡带墙按需加载：无 WebGL 或低端设备自动退回 2D
-- **没有曲库时自动进入 DEMO 模式**（`data/tracks.sample.json`，封面程序生成，无音频）
+- **没有曲库时自动进入 DEMO 模式**（`public/data/tracks.sample.json`，封面程序生成，无音频）
 
 ## 开发
 
@@ -30,7 +33,24 @@ npm run palette
 npm run transcode -- --dir "D:/Music/library"
 ```
 
-产物路径：`data/tracks.json`、`public/covers/`、`public/audio/`（后两者已 gitignore）。
+产物与是否入库：
+
+| 路径 | 内容 | 入库 |
+|---|---|---|
+| `public/data/tracks.json` | 曲库清单 | ✅ 需要（页面运行时读取） |
+| `public/covers/gen/` | 96/256/512 AVIF 缩略图 | ✅ 需要 |
+| `public/covers/src/` | 从音频提取的封面原图 | ❌ 体积大 |
+| `public/audio/` | opus / mp3 流媒体 | ❌ 后续改 R2 |
+
+> 音频暂不随仓库发布：默认走演示数据。正式上线播放前，需要先确定音频托管（R2 + 自定义域名），属 M4。
+
+## 部署
+
+- 平台：Cloudflare Pages（项目 `tipherepth-official`）
+- 构建命令：`npm run build`，输出目录：`dist`
+- Node：`.nvmrc` / `NODE_VERSION=22`
+- 推送 `main` → 生产部署；开 PR → 预览部署
+- 响应头策略在 `public/_headers`：`/assets/*` 一年 immutable，HTML 不缓存
 
 ## 目录
 
@@ -48,10 +68,10 @@ scripts/             扫描 / 取色 / 转码
 
 ## 约定
 
-- 全站 0 圆角，切角用 `clip-path`（`.chamfer`）
+- 全站 0 圆角，切角用 `clip-path`
 - 动效只碰 `transform` / `opacity`，并响应 `prefers-reduced-motion`
 - 3D 不进入首屏关键路径：无 WebGL 时不得报错，直接给 2D
 
 ## 许可证
 
-代码 MIT（见 LICENSE）。音频、封面与第三方素材版权归各自权利人，不入库。
+代码 MIT（见 LICENSE）。音频、封面与第三方素材版权归各自权利人。
