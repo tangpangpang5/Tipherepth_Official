@@ -1,0 +1,21 @@
+# Cloudflare Pages 静态托管配置（构建时 public/ 会被拷贝到 dist/ 根）
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+
+# Vite 产物带内容哈希，可以永久缓存
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 封面与音频是可重新生成的资源，缓存 7 天
+/covers/*
+  Cache-Control: public, max-age=604800
+
+/audio/*
+  Cache-Control: public, max-age=604800
+
+# HTML 不缓存，保证发布后立刻生效
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
