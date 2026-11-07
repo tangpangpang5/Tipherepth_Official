@@ -2,12 +2,16 @@
   "name": "TIPHERETH",
   "handle": "tangpangpang5",
   "role": "高中生 // 前端 / 视觉",
-  "slogan": "归档、记录，然后继续。",
-  "intro": "这是我的个人档案库：项目、笔记、书架和音乐。所有东西都按编号归档，不需要好看的封面，只需要能被找到。",
   "location": "CN",
+  "station": "SITE-13 // 第三收容室",
+  "version": "v0.3.0",
+  "intro": "个人档案库：身份、活动记录、天气与音乐。所有东西按编号归档，能查到比好看重要。",
+  "weather": { "city": "北京", "lat": 39.9042, "lon": 116.4074 },
+  "repo": { "owner": "tangpangpang5", "name": "Tipherepth_Official", "branch": "main" },
   "links": [
     { "label": "GitHub", "href": "https://github.com/tangpangpang5" },
-    { "label": "Email", "href": "mailto:tangpangpang5@gmail.com" },
+    { "label": "Email", "href": "mailto:hello@example.com" },
     { "label": "Bilibili", "href": "https://space.bilibili.com/" }
-  ]
+  ],
+  "admin": { "password": "tiphereth" }
 }
