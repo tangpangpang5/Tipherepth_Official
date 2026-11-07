@@ -3,6 +3,7 @@ import './styles/app.css';
 import './styles/theme-lc.css';
 import './styles/pages.css';
 import './styles/tree.css';
+import './styles/lc2.css';
 import { loadTracks } from './data.js';
 import { loadContent } from './content2.js';
 import { createPlayer } from './audio/player.js';

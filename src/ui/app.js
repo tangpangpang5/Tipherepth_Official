@@ -2,6 +2,7 @@ import { el } from './dom.js';
 import { createPlayerBar } from './player-bar.js';
 import { pageMusic } from './tree.js';
 import { pageHome, pageProfile } from './pages2.js';
+import { pageShelf } from './shelf.js';
 import { pageAdmin } from './admin.js';
 
 function parseHash() {
@@ -9,6 +10,7 @@ function parseHash() {
   const [head, ...rest] = raw.split('/').filter(Boolean);
   if (!head) return { name: 'home' };
   if (head === 'profile') return { name: 'profile' };
+  if (head === 'shelf') return { name: 'shelf' };
   if (head === 'admin') return { name: 'admin' };
   if (head === 'music') {
     if (rest[0] === 'library') return { name: 'music', mode: 'index' };
@@ -35,6 +37,7 @@ export function createApp({ dataset, content, player }) {
   const NAV = [
     ['home', 'HOME', ''],
     ['profile', 'PROFILE', 'profile'],
+    ['shelf', 'SHELF', 'shelf'],
   ];
 
   function buildTopbar() {
@@ -87,6 +90,7 @@ export function createApp({ dataset, content, player }) {
 
     if (route.name === 'home') viewHandle = pageHome({ content, navigate: go });
     else if (route.name === 'profile') viewHandle = pageProfile({ content, navigate: go });
+    else if (route.name === 'shelf') viewHandle = pageShelf({ content, navigate: go });
     else if (route.name === 'admin') viewHandle = pageAdmin({ content, navigate: go });
     else if (route.name === 'music') {
       viewHandle = pageMusic({
@@ -101,6 +105,9 @@ export function createApp({ dataset, content, player }) {
     main.append(viewHandle.el);
     setCurrent(route.name);
     main.scrollTop = 0;
+    main.classList.remove('is-swap');
+    void main.offsetWidth;
+    main.classList.add('is-swap');
   }
 
   function mount(node) {

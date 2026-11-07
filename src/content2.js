@@ -55,15 +55,17 @@ export function clearOverride() {
 
 export async function loadContent() {
   const override = readOverride();
-  const [site, profile, activity] = await Promise.all([
+  const [site, profile, activity, books] = await Promise.all([
     getJSON('content/site.json').catch(() => FALLBACK_SITE),
     getJSON('content/profile.json').catch(() => FALLBACK_PROFILE),
     getJSON('content/activity.json').catch(() => ({ generatedAt: '', days: {} })),
+    getJSON('content/books.json').catch(() => ({ sectors: [], books: [] })),
   ]);
   return {
     site: { ...FALLBACK_SITE, ...site, ...(override.site || {}) },
     profile: { ...FALLBACK_PROFILE, ...profile, ...(override.profile || {}) },
     activity: override.activity && override.activity.days ? override.activity : activity,
+    books: books || { sectors: [], books: [] },
     local: Boolean(override.site || override.profile || override.activity),
   };
 }

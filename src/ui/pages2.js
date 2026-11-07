@@ -1,5 +1,6 @@
 import { el } from './dom.js';
 import { heatmapGrid, fetchGitHubActivity } from './heatmap.js';
+import { recentBooksCard } from './shelf.js';
 
 const WEATHER = {
   0: '晴', 1: '多云', 2: '多云', 3: '阴', 45: '雾', 48: '雾',
@@ -144,6 +145,7 @@ export function pageHome({ content }) {
               ),
               linksRow(site.links),
             ),
+            recentBooksCard(content.books?.books || []),
             el('a', { class: 'music-cta', href: '#/music' },
               el('span', { class: 'music-cta__label', text: 'CASSETTE WALL' }),
               el('span', { class: 'music-cta__arrow', text: '→' }),

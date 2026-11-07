@@ -95,6 +95,10 @@ function editorView({ content }) {
   const links = el('textarea', { class: 'admin__textarea', rows: '4' });
   links.value = (site.links || []).map((link) => `${link.label} | ${link.href}`).join('\n');
 
+  const booksDoc = structuredClone(content.books || { sectors: [], books: [] });
+  const booksText = el('textarea', { class: 'admin__textarea', rows: '8' });
+  booksText.value = (booksDoc.books || []).map((book) => `${book.title} | ${book.author} | ${book.status === 'reading' ? '在读' : '读完'} | ${book.sector}`).join('\n');
+
   const status = el('div', { class: 'admin__note', text: '' });
   const pat = el('input', { class: 'admin__input', type: 'password', value: localStorage.getItem(PAT_KEY) || '', placeholder: 'GitHub token（可选，用于提交）' });
 
@@ -123,7 +127,26 @@ function editorView({ content }) {
       avatar: f.avatar.input.value.trim(),
       skills: f.skills.input.value.split(',').map((item) => item.trim()).filter(Boolean),
     };
-    return { site: nextSite, profile: nextProfile };
+    const today = new Date().toISOString().slice(0, 10);
+    const prevBooks = new Map((booksDoc.books || []).map((book) => [`${book.title}|${book.author}`, book]));
+    const books = booksText.value.split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => {
+      const [title, author, statusRaw, sectorRaw] = line.split('|').map((part) => (part || '').trim());
+      const old = prevBooks.get(`${title}|${author}`);
+      const reading = /reading|在读/.test(statusRaw || '');
+      return {
+        id: old?.id || `bk-${String(index + 1).padStart(3, '0')}`,
+        title: title || 'UNTITLED',
+        author: author || 'UNKNOWN',
+        status: reading ? 'reading' : 'done',
+        sector: sectorRaw || old?.sector || 'A',
+        updated: old?.updated || today,
+      };
+    });
+    return {
+      site: nextSite,
+      profile: nextProfile,
+      books: { generatedAt: today, sectors: booksDoc.sectors || [], books },
+    };
   }
 
   const save = () => {
@@ -141,6 +164,7 @@ function editorView({ content }) {
       const payload = collect();
       await commitFile(site.repo, 'public/content/site.json', payload.site, token);
       await commitFile(site.repo, 'public/content/profile.json', payload.profile, token);
+      await commitFile(site.repo, 'public/content/books.json', payload.books, token);
       status.textContent = '已提交到仓库，约 1 分钟后构建完成。';
     } catch (error) {
       status.textContent = `提交失败：${error.message}`;
@@ -166,6 +190,10 @@ function editorView({ content }) {
           box('SITE', f.name.node, f.handle.node, f.role.node, f.location.node, f.station.node, f.city.node, f.lat.node, f.lon.node, f.password.node),
           box('OPERATOR', f.operator.node, f.alias.node, f.title.node, f.clearance.node, f.pstation.node, f.status.node, f.fileNo.node, f.photoLabel.node, f.avatar.node, f.skills.node),
           box('LINKS', links),
+          box('BOOKS // 书名 | 作者 | 在读\/读完 | 分区',
+            booksText,
+            el('p', { class: 'admin__hint', text: '每行一本；分区 A–D 对应书架的四排。' }),
+          ),
           box('PUBLISH',
             pat,
             el('p', { class: 'admin__hint', text: '热力图直接读 GitHub 公开事件，不需要手动维护。token 只存本机。' }),
