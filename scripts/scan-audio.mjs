@@ -1,12 +1,12 @@
 /**
  * M0 · 音频扫描器
  *
- * 读取本地无损/有损音频目录 → 提取元数据与内嵌封面 → 生成 data/tracks.json。
+ * 读取本地音频目录 → 提取元数据与内嵌封面 → 生成 public/data/tracks.json。
  * 不依 ffmpeg、不转码、不联网；只做「把文件变成一份可构建的清单」。
  *
  * 用法：
- *   node scripts/scan-audio.mjs --dir "D:/Music/library" --out data
- *   node scripts/scan-audio.mjs --dir "D:/Music/library" --out data --limit 20
+ *   npm run scan -- --dir "D:/Music/library"
+ *   npm run scan -- --dir "D:/Music/library" --limit 20
  */
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
@@ -17,7 +17,7 @@ const AUDIO_EXT = new Set(['.flac', '.wav', '.mp3', '.m4a', '.ogg', '.opus', '.a
 const IMAGE_EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
 
 function parseArgs(argv) {
-  const args = { dir: null, out: 'data', limit: Infinity };
+  const args = { dir: null, out: 'public/data', limit: Infinity };
   for (let i = 2; i < argv.length; i += 1) {
     const key = argv[i];
     const value = argv[i + 1];
@@ -102,7 +102,8 @@ async function main() {
   if (!info.isDirectory()) throw new Error(`--dir 不是目录：${rootDir}`);
 
   const outDir = resolve(args.out);
-  const coversDir = join(outDir, '..', 'public', 'covers', 'src');
+  // 约定：--out 指向 public/data，封面写到 public/covers/src
+  const coversDir = join(outDir, '..', 'covers', 'src');
   await mkdir(coversDir, { recursive: true });
   await mkdir(outDir, { recursive: true });
 

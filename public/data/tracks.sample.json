@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-07T00:00:00.000Z",
+  "rootName": "SAMPLE",
+  "stats": {
+    "total": 10,
+    "lossless": 10,
+    "withCover": 0
+  },
+  "tracks": [
+    { "id": "sample-01", "title": "冷光档案", "artist": "TIPHERETH", "album": "ARCHIVE I", "year": 2026, "trackNo": 1, "durationMs": 214000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#7FB4C9", "metaSource": "tags" },
+    { "id": "sample-02", "title": "第三收容室", "artist": "NOCTURNE UNIT", "album": "CONTAINMENT", "year": 2026, "trackNo": 2, "durationMs": 188000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#C8102E", "metaSource": "tags" },
+    { "id": "sample-03", "title": "值夜记录", "artist": "TIPHERETH", "album": "NIGHT SHIFT", "year": 2025, "trackNo": 3, "durationMs": 241000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#E8B10A", "metaSource": "tags" },
+    { "id": "sample-04", "title": "静默协议", "artist": "ARCHIVE DEPT.", "album": "SILENT PROTOCOL", "year": 2025, "trackNo": 4, "durationMs": 167000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#6E8B74", "metaSource": "tags" },
+    { "id": "sample-05", "title": "电梯下行", "artist": "NOCTURNE UNIT", "album": "DESCENT", "year": 2025, "trackNo": 5, "durationMs": 302000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#8E7CC3", "metaSource": "tags" },
+    { "id": "sample-06", "title": "不存在的房间", "artist": "TIPHERETH", "album": "ROOM 0", "year": 2024, "trackNo": 6, "durationMs": 226000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#D98C4A", "metaSource": "tags" },
+    { "id": "sample-07", "title": "灯光熄灭时", "artist": "ARCHIVE DEPT.", "album": "BLACKOUT", "year": 2024, "trackNo": 7, "durationMs": 195000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#4A90A4", "metaSource": "tags" },
+    { "id": "sample-08", "title": "月度报告", "artist": "ADMIN OFFICE", "album": "PAPERWORK", "year": 2024, "trackNo": 8, "durationMs": 158000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#B04A5A", "metaSource": "tags" },
+    { "id": "sample-09", "title": "归档结束", "artist": "TIPHERETH", "album": "END OF ARCHIVE", "year": 2023, "trackNo": 9, "durationMs": 271000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#7A7F84", "metaSource": "tags" },
+    { "id": "sample-10", "title": "重启", "artist": "SYSTEM", "album": "REBOOT", "year": 2023, "trackNo": 10, "durationMs": 143000, "codec": "FLAC", "lossless": true, "hasAudio": false, "accent": "#CFCFC4", "metaSource": "tags" }
+  ]
+}

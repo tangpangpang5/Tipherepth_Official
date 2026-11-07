@@ -1,12 +1,11 @@
 node_modules/
 dist/
 
-# 生成物：音频与封面不入库（体积与版权原因，见 blog-design/06-music-station.md）
+# 生成物：音频、封面与曲库清单不入库（体积与版权原因）
 public/audio/
 public/covers/src/
 public/covers/gen/
-
-# 扫描产物：由本地曲库生成，CI 中不存在
+public/data/tracks.json
 data/tracks.json
 
 # 系统与编辑器

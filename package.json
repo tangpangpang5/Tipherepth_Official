@@ -12,9 +12,9 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "scan": "node scripts/scan-audio.mjs",
-    "palette": "node scripts/palette.mjs",
-    "transcode": "node scripts/transcode.mjs"
+    "scan": "node scripts/scan-audio.mjs --out public/data",
+    "palette": "node scripts/palette.mjs --data public/data --public public",
+    "transcode": "node scripts/transcode.mjs --data public/data --public public"
   },
   "dependencies": {
     "music-metadata": "^11.16.0",
