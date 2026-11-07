@@ -25,7 +25,8 @@ const FALLBACK_PROFILE = {
   skills: [],
 };
 
-export const OVERRIDE_KEY = 'tiphereth:content';
+// v2：旧的本机覆盖（localStorage）已失效，避免历史草稿盖住仓库内容
+export const OVERRIDE_KEY = 'tiphereth:content:v2';
 
 async function getJSON(path) {
   const res = await fetch(path, { cache: 'no-store' });
