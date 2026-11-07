@@ -12,7 +12,7 @@
       (function () {
         function report(kind, detail) {
           var node = document.getElementById('app');
-          if (node && !node.querySelector('.app')) node.textContent = kind + ' // ' + detail;
+          if (node && !node.firstElementChild) node.textContent = kind + ' // ' + detail;
         }
         window.addEventListener('error', function (event) {
           if (event.target && event.target.tagName === 'SCRIPT') { report('LOAD ERROR', event.target.src); return; }
