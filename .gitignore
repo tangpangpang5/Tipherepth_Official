@@ -1,0 +1,16 @@
+node_modules/
+dist/
+
+# 生成物：音频与封面不入库（体积与版权原因，见 blog-design/06-music-station.md）
+public/audio/
+public/covers/src/
+public/covers/gen/
+
+# 扫描产物：由本地曲库生成，CI 中不存在
+data/tracks.json
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

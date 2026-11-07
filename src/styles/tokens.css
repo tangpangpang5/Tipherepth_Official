@@ -1,0 +1,124 @@
+/* 设计 token —— 严格对齐 blog-design/01-visual-system.md */
+:root {
+  /* 表面 */
+  --void: #08090a;
+  --panel: #0e1012;
+  --panel-raised: #141719;
+  --line: #2a2e31;
+  --line-strong: #4a5054;
+
+  /* 文字 */
+  --text: #d8dbd6;
+  --text-dim: #8a8f8a;
+  --text-faint: #5a5f5a;
+
+  /* 语义 */
+  --alert: #c8102e;
+  --hazard: #e8b10a;
+  --safe: #2e7d5b;
+  --neon-cyan: #00e5ff;
+  --neon-magenta: #ff2e63;
+
+  /* 当前曲目主色，由封面取色后写入 */
+  --accent: #e8b10a;
+
+  /* 字体：不打包字体文件，先用系统栈；接入自托管字体后替换这两个变量 */
+  --font-sans: "IBM Plex Sans", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei",
+    system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Code", "SFMono-Regular",
+    Consolas, "Liberation Mono", monospace;
+
+  /* 动效 */
+  --t-micro: 80ms;
+  --t-fast: 140ms;
+  --t-base: 220ms;
+  --t-slow: 320ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 形状 */
+  --chamfer-sm: 4px;
+  --chamfer-md: 8px;
+  --chamfer-lg: 12px;
+
+  /* 布局 */
+  --topbar-h: 32px;
+  --player-h: 92px;
+  --gutter: 24px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--hazard);
+  color: var(--void);
+}
+
+:focus-visible {
+  outline: 1px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+/* 全站纹理：静态层，不逐帧绘制 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.045) 0,
+    rgba(255, 255, 255, 0.045) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at 50% 30%, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body::before {
+    display: none;
+  }
+}
